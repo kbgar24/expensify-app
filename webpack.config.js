@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-  entry: './src/app.js',
+  entry: './src/playground/destructuring.js',
   output: {
     path: path.join(__dirname, 'public'),
     filename: 'bundle.js'
@@ -20,7 +20,7 @@ module.exports = {
       ]
     }]
   },
-  devtool: 'cheap-module-eval-source-map',
+  devtool: '',
   devServer: {
     contentBase: path.join(__dirname, 'public'),
     historyApiFallback: true
