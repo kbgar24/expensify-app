@@ -1,21 +1,64 @@
 import { createStore } from 'redux';
 
-const store = createStore((state = { count: 0 }, action) => {
+//Action Generator functions
+
+const incrementCount = ({ incrementBy = 1 } = {}) => ({
+  type: 'INCREMENT',
+  // incrementBy: typeof payload.incrementBy === 'number' ? payload.incrementBy : 1
+  incrementBy
+})
+
+const decrementCount = ({ decrementBy = 1 } = {}) => ({
+  type: 'DECREMENT',
+  decrementBy
+})
+
+const setCount = ({ count }) => ({
+  type: 'SET',
+  count
+});
+
+const resetCount = () => ({type: 'RESET'})
+
+//unpure function
+let a = 10;
+var add = (b) => {
+  return a + b; /*Here function value depends on external 'a' var. Therefore this function is not pure*/
+}
+
+let result;
+var add = (a,b) => {
+  result = a + b; /*Here function value affects an external result. Therefore this function is not pure*/
+}
+
+
+//pure function
+var add = (a,b) => {
+  return a + b;
+}
+
+// Reducers
+// 1. Reducers are pure functions
+// 2. Never change state of action
+
+const countReducer = (state = { count: 0 }, action) => {
   switch (action.type) {
     case 'INCREMENT':
-      const incrementBy = typeof action.incrementBy === 'number' ? action.incrementBy : 1
+      // const incrementBy = typeof action.incrementBy === 'number' ? action.incrementBy : 1
       return {
-        count: state.count + incrementBy
+        // count: state.count + incrementBy
+        count: state.count + action.incrementBy
       };
     case 'DECREMENT':
-      const decrementBy = typeof action.decrementBy === 'number' ? action.decrementBy : 10
+      // const decrementBy = typeof action.decrementBy === 'number' ? action.decrementBy : 10
       return {
-        count: state.count - decrementBy
+        count: state.count - action.decrementBy
       }
     case 'SET':
-      const newValue = typeof action.count === 'number' ? action.count : undefined;
+      // const newValue = typeof action.count === 'number' ? action.count : undefined;
+      const count = typeof action.count === 'number' ? action.count : state.count
       return {
-        count: newValue || state.count
+        count
       }
     case 'RESET':
       return {
@@ -24,30 +67,42 @@ const store = createStore((state = { count: 0 }, action) => {
     default:
       return state;
   }
-});
+};
+
+const store = createStore(countReducer);
 
 const unsubscribe = store.subscribe(() => {
   console.log(store.getState());
 })
 
-store.dispatch({
-  type: 'INCREMENT',
-  incrementBy: 5,
-});
+store.dispatch(incrementCount({ incrementBy: 500 }))
+// store.dispatch({
+//   type: 'INCREMENT',
+//   incrementBy: 5,
+// });
 
 //Actions - Object that gets sent to store
 
 //I'd like to increment the count
-store.dispatch({
-  type: 'DECREMENT'
-});
+//Dispatch
+// store.dispatch({
+//   type: 'DECREMENT'
+// });
+//Genrators:
+store.dispatch(resetCount());
+
+store.dispatch(decrementCount({ decrementBy: 50 }))
+
+store.dispatch(decrementCount())
 
 
-store.dispatch({
-  type: 'RESET'
-});
+// store.dispatch({
+//   type: 'RESET'
+// });
 
-store.dispatch({
-  type: 'SET',
-  count: 'Fuck you.'
-})
+store.dispatch(setCount({ count: 0 }));
+
+// store.dispatch({
+//   type: 'SET',
+//   count: 'Fuck you.'
+// })
