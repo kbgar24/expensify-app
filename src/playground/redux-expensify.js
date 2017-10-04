@@ -136,6 +136,31 @@ const filtersReducer = (state = filtersReducerDefaultState, action) => {
   }
 }
 
+// Get visible expenses
+
+const getVisibleExpenses = (expenses, { text, sortBy, startDate, endDate }) => {
+  return expenses.filter((expense) => {
+    const startDateMatch = typeof startDate !== 'number' || expense.createdAt >= startDate;
+    const endDateMatch = typeof endDate !== 'number' || expense.createdAt <= endDate;
+    const textMatch = expense.description.toLowerCase().includes(text.toLowerCase())
+
+    return startDateMatch && endDateMatch && textMatch;
+  });
+};
+
+const sortByAscending = (expenses, filters) => {
+  const visibleExpenses = getVisibleExpenses(expenses, filters);
+  if (sortBy === 'date') {
+    return visibleExpenses.sort((a, b) => a.createdAt > b.createdAt);
+  } else {
+    return visibleExpenses.sort((a, b) => a.amount > b.amount);
+  }
+};
+
+const sortByDescending = (expenses, filters) => {
+  return sortByAscending(expenses, filters).reverse();
+}
+
 // Store creation
 
 const store = createStore(
@@ -146,31 +171,40 @@ const store = createStore(
 );
 
 store.subscribe(() => {
-  console.log(store.getState());
+  const state = store.getState();
+
+  const visibleExpenses = getVisibleExpenses(state.expenses, state.filters);
+
+  const sortedByAscending = sortByAscending(state.expenses, state.filters);
+  // const sortedByDescending = sortByDescending(state.expenses, state.filters);
+
+
+  console.log('visible: ', visibleExpenses);
+  console.log('sortedAscneding: ', sortedByAscending);
+  // console.log('sortedDesc: ', sortedByDescending);
+
 });
 
-const expenseOne = store.dispatch(addExpense({ description: 'Rent', amount: 100 }));
-const expenseTwo = store.dispatch(addExpense({ description: 'Coffee', amount: 150 }));
+const expenseOne = store.dispatch(addExpense({ description: 'Rent', amount: 1000, createdAt: 2000 }));
+const expenseTwo = store.dispatch(addExpense({ description: 'Coffee', amount: 10, createdAt: -1000 }));
+const expenseThree = store.dispatch(addExpense({ description: 'Sex', amount: 150, createdAt: 3000 }));
+const expenseFour = store.dispatch(addExpense({ description: 'Plan B', amount: 50, createdAt: 10000 }));
+const expenseFive = store.dispatch(addExpense({ description: 'Abortion', amount: 600, createdAt: 20000 }));
 
-store.dispatch(removeExpense({ id: expenseOne.expense.id}));
-store.dispatch(editExpense(expenseTwo.expense.id, {amount: 500}));
+// store.dispatch(removeExpense({ id: expenseOne.expense.id}));
+// store.dispatch(editExpense(expenseTwo.expense.id, {amount: 500}));
 
-store.dispatch(setTextFilter('rent'));
-store.dispatch(setTextFilter());
-
+// store.dispatch(setTextFilter('coffee'));
+// store.dispatch(setTextFilter());
+//
 store.dispatch(sortByDateFilter())
-store.dispatch(sortByAmountFilter())
-
-store.dispatch(setStartDateFilter(5))
-store.dispatch(setStartDateFilter());
-
-store.dispatch(setEndDateFilter())
-store.dispatch(setEndDateFilter(10))
-
-
-
-
-
+// store.dispatch(sortByAmountFilter())
+//
+// store.dispatch(setStartDateFilter(125))
+// store.dispatch(setStartDateFilter());
+//
+// store.dispatch(setEndDateFilter())
+// store.dispatch(setEndDateFilter(10))
 
 
 
